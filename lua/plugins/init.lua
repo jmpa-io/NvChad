@@ -1,7 +1,7 @@
 return {
   {
     "stevearc/conform.nvim",
-    event = 'BufWritePre', -- uncomment for format on save
+    event = 'BufWritePre', -- formats on save.
     config = function()
       require "configs.conform"
     end,
@@ -104,6 +104,15 @@ return {
     end,
     build = function()
       vim.cmd [[silent! GoInstallDeps]]
+    end,
+  },
+
+  {
+    "sindrets/diffview.nvim",
+    requires = "nvim-lua/plenary.nvim",
+    event = "VimEnter",
+    config = function(_, opts)
+      require("diffview").setup(opts)
     end,
   },
 }
