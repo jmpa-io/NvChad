@@ -1,4 +1,3 @@
--- EXAMPLE
 local on_attach = require("nvchad.configs.lspconfig").on_attach
 local on_init = require("nvchad.configs.lspconfig").on_init
 local capabilities = require("nvchad.configs.lspconfig").capabilities
@@ -35,4 +34,14 @@ lspconfig.gopls.setup {
       },
     },
   },
+}
+
+-- clang config
+-- TODO:
+lspconfig.clangd.setup{
+  on_attach = function(client, bufnr)
+    client.server_capabilities.signatureHelpProvider = false
+    on_attach(client, bufnr)
+  end,
+  capabilities = capabilities,
 }

@@ -19,19 +19,37 @@ return {
   	"williamboman/mason.nvim",
   	opts = {
   		ensure_installed = {
-  			"html-lsp",
-        "bash-language-server",
-        "css-lsp",
+        "prettier",
+        "stylua",
+
+        -- Tools.
+        "jq",
         "gh",
+
+        -- Bash.
+        "bash-language-server",
+        "shellcheck",
+
+        -- Go.
         "golangci-lint",
         "golangci-lint-langserver",
         "gopls",
+
+        -- C++.
+        "clangd",
+        "clang-format",
+        "codelldb",
+
+        -- Docker.
         "hadolint",
-        "jq",
-        "lua-language-server",
-        "prettier",
-        "shellcheck",
-        "stylua",
+
+        -- Lua.
+       "lua-language-server",
+
+        -- HTML & CSS.
+      	"html-lsp",
+        "css-lsp",
+
   		},
   	},
   },
@@ -39,6 +57,41 @@ return {
   {
   	"nvim-treesitter/nvim-treesitter",
   	opts = { ensure_installed = "all" },
+  },
+
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "mfussenegger/nvim-dap",
+    },
+    opts = {
+      handlers = {},
+    },
+  },
+
+  {
+    "rcarriga/nvim-dap-ui",
+    event = "VeryLazy",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "nvim-neotest/nvim-nio",
+    },
+    config = function()
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup()
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+      end
+    end
   },
 
   {
@@ -94,6 +147,41 @@ return {
       }
       return opts
     end,
+  },
+
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    ft="cpp",
+    event = "VeryLazy",
+    opts = function()
+      local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+      local null_ls = require("null-ls")
+      local opts = {
+        sources = {
+          null_ls.builtins.formatting.clang_format,
+        },
+        on_attach = function (client, bufnr)
+          if client.supports_method("textDocument/formatting") then
+            vim.api.nvim_clear_autocmds({
+              group = augroup,
+              buffer = bufnr,
+            })
+            vim.api.nvim_create_autocmd("BufWritePre", {
+              group = augroup,
+              buffer = bufnr,
+              callback = function()
+                vim.lsp.buf.format({ bufnr = bufnr })
+              end,
+            })
+          end
+        end,
+      }
+      return opts
+    end,
+  },
+
+  {
+    "mfussenegger/nvim-dap",
   },
 
   {
