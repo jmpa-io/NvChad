@@ -1,107 +1,34 @@
 return {
   {
+    -- Formatting.
     "stevearc/conform.nvim",
-    event = 'BufWritePre', -- formats on save.
+    event = {
+      "BufWritePre",
+    },
     config = function()
-      require "configs.conform"
+      require("configs.conform")
     end,
   },
 
   {
+    -- Formatting (backup).
     "neovim/nvim-lspconfig",
     config = function()
-      require("nvchad.configs.lspconfig").defaults()
-    -- event = 'BufWritePre', -- uncomment for format on save
-    end,
-    opts = require "configs.conform",
-
-  },
-
-  -- These are some examples, uncomment them if you want to see them work!
-  {
-    "neovim/nvim-lspconfig",
-    config = function()
-      require "configs.lspconfig"
+      require("configs.nvim-lspconfig")
     end,
   },
 
   {
-  	"williamboman/mason.nvim",
-  	opts = {
-  		ensure_installed = {
-        "prettier",
-        "stylua",
-
-        -- Tools.
-        "jq",
-        "gh",
-
-        -- Bash.
-        "bash-language-server",
-        "shellcheck",
-
-        -- Go.
-        "golangci-lint",
-        "golangci-lint-langserver",
-        "gopls",
-
-        -- C++.
-        "clangd",
-        "clang-format",
-        "codelldb",
-
-        -- Docker.
-        "hadolint",
-
-        -- Lua.
-       "lua-language-server",
-
-        -- HTML & CSS.
-      	"html-lsp",
-        "css-lsp",
-
-  		},
-  	},
+    -- Dependency management.
+    "williamboman/mason.nvim",
+    opts = function()
+      require("configs.mason")
+    end,
   },
 
   {
-  	"nvim-treesitter/nvim-treesitter",
-  	opts = { ensure_installed = "all" },
-  },
-
-  {
-    "jay-babu/mason-nvim-dap.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "mfussenegger/nvim-dap",
-    },
-    opts = {
-      handlers = {},
-    },
-  },
-
-  {
-    "rcarriga/nvim-dap-ui",
-    event = "VeryLazy",
-    dependencies = {
-      "mfussenegger/nvim-dap",
-      "nvim-neotest/nvim-nio",
-    },
-    config = function()
-      local dap = require("dap")
-      local dapui = require("dapui")
-      dapui.setup()
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
-      end
-    end
+    "nvim-treesitter/nvim-treesitter",
+    opts = require("configs.treesitter"),
   },
 
   {
@@ -115,6 +42,7 @@ return {
 
   {
     "max397574/better-escape.nvim",
+    event = "InsertEnter",
     config = function()
       require("better_escape").setup()
     end,
@@ -128,90 +56,85 @@ return {
   },
 
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
     ft = "go",
     opts = function()
-      local null_ls = require("null-ls")
-      local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-      local opts = {
-        sources = {
-          null_ls.builtins.formatting.gofmt,
-          null_ls.builtins.formatting.goimports_reviser,
-          null_ls.builtins.formatting.golines,
-        },
-        on_attach = function(client, bufnr)
-          if client.supports_method("textDocument/formatting") then
-            vim.api.nvim_clear_autocmds({
-              group = augroup,
-              buffer = bufnr,
-            })
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              group = augroup,
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format({ bufnr = bufnr })
-              end,
-            })
-          end
-        end,
-      }
-      return opts
+      require("configs.null-ls")
     end,
   },
 
   {
-    "jose-elias-alvarez/null-ls.nvim",
-    ft="cpp",
+    "nvimtools/none-ls.nvim",
+    ft = "cpp",
     event = "VeryLazy",
     opts = function()
-      local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-      local null_ls = require("null-ls")
-      local opts = {
-        sources = {
-          null_ls.builtins.formatting.clang_format,
-        },
-        on_attach = function (client, bufnr)
-          if client.supports_method("textDocument/formatting") then
-            vim.api.nvim_clear_autocmds({
-              group = augroup,
-              buffer = bufnr,
-            })
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              group = augroup,
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format({ bufnr = bufnr })
-              end,
-            })
-          end
-        end,
-      }
-      return opts
+      require("configs.null-ls")
     end,
   },
 
   {
-    "mfussenegger/nvim-dap",
-  },
-
-  {
+    -- Setup Go for neovim.
     "olexsmir/gopher.nvim",
     ft = "go",
-    config = function(_, opts)
-      require("gopher").setup(opts)
-    end,
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
     build = function()
-      vim.cmd [[silent! GoInstallDeps]]
+      vim.cmd.GoInstallDeps()
     end,
+    --@type gopher.Config
+    opts = {},
   },
 
   {
+    -- Linting.
+    "mfussenegger/nvim-lint",
+    event = {
+      "BufReadPre",
+      "BufNewFile",
+    },
+    config = function()
+      require("configs.lint").setup()
+    end,
+  },
+
+
+  --
+  -- Git
+  --
+
+  {
+    -- A 'git diff' viewer.
     "sindrets/diffview.nvim",
-    requires = "nvim-lua/plenary.nvim",
-    event = "VimEnter",
+    dependencies = "nvim-lua/plenary.nvim",
+    event = "VeryLazy",
     config = function(_, opts)
       require("diffview").setup(opts)
     end,
   },
+
+  -- {
+  --   -- git intergration.
+  --   "lewis6991/gitsigns.nvim",
+  --   config = function(_, opts)
+  --     require("configs.gitsigns").setup(opts)
+  --   end,
+  -- },
+
+
+  {
+    -- inlay hints.
+    "MysticalDevil/inlay-hints.nvim",
+    event = "LspAttach",
+    dependencies = { "neovim/nvim-lspconfig" },
+    config = function()
+      require("inlay-hints").setup {
+        commands = { enable = true }, -- Enable InlayHints commands, include `InlayHintsToggle`, `InlayHintsEnable` and `InlayHintsDisable`
+        autocmd = { enable = true },
+      }
+    end,
+  },
+
 
 }
