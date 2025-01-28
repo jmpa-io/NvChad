@@ -13,8 +13,11 @@ o.ruler = true
 -- when cursor reaches end/beginning of line
 opt.whichwrap:append "<>[]hl"
 
--- add binaries installed by mason.nvim to path
+-- add binaries installed by mason.nvim to PATH.
 local is_windows = vim.fn.has "win32" ~= 0
 local sep = is_windows and "\\" or "/"
 local delim = is_windows and ";" or ":"
 vim.env.PATH = table.concat({ vim.fn.stdpath "data", "mason", "bin" }, sep) .. delim .. vim.env.PATH
+
+-- add binaries installed & compiled by Go to PATH.
+vim.env.PATH = vim.fn.expand("$HOME") .. "/go/bin" .. delim .. vim.env.PATH

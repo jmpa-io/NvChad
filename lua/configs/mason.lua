@@ -31,5 +31,8 @@ return {
     "css-lsp",
     "prettier",
 
+    -- Python.
+    "ruff",
+    "mypy",
   },
 }

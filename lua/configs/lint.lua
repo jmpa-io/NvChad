@@ -3,10 +3,19 @@ local M = {}
 M.setup = function()
   local lint = require "lint"
 
+  lint.linters.golangci_lint = {
+    cmd = "golangci-lint",
+    args = { "run", "--out-format", "line-number" },
+    stdin = false,
+    stream = "stdout",
+    ignore_exitcode = true,
+    parser = require("lint.parser").from_errorformat("%f:%l:%c: %t%*[^:]: %m"),
+  }
+
   lint.linters_by_ft = {
     python = { "ruff", "mypy" },
     cpp = { "cpplint", "cppcheck" },
-    go = { "gopls" },
+    go = { "golangci_lint" },
   }
 
   local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
