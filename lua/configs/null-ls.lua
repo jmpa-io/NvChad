@@ -3,9 +3,14 @@ local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 
 return {
   sources = {
+
+    -- Go.
     null_ls.builtins.formatting.gofmt,
     null_ls.builtins.formatting.goimports_reviser,
     null_ls.builtins.formatting.golines,
+
+    -- C++.
+    null_ls.builtins.diagnostics.cppcheck,
   },
   on_attach = function(client, bufnr)
     if client.supports_method("textDocument/formatting") then

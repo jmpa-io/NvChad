@@ -25,9 +25,8 @@ lspconfig.gopls.setup {
 -- C++.
 --
 lspconfig.clangd.setup {
-  on_attach = function(client, bufnr)
+  on_attach = function(client)
     client.server_capabilities.signatureHelpProvider = false
-    on_attach(client, bufnr)
   end,
   capabilities = nvlsp.capabilities,
 }
