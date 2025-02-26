@@ -136,5 +136,22 @@ return {
     end,
   },
 
+  {
+    -- Requires:
+    -- pacman -S webkit2gtk
+    -- https://github.com/toppair/peek.nvim/issues/61#issuecomment-2182739205.
+    "toppair/peek.nvim",
+    event = { "VeryLazy" },
+    build = "deno task --quiet build:fast",
+    config = function()
+      require("peek").setup({
+        update_on_change = true,
+        auto_load = true,
+        debug = true,
+      })
+      vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
+      vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
+    end,
+  },
 
 }

@@ -4,6 +4,7 @@ return {
     -- Tools.
     "jq",
     "gh",
+    "deno",
 
     -- Bash.
     "bash-language-server",
