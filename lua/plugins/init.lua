@@ -136,9 +136,9 @@ return {
     end,
   },
 
+  -- Markdown preview.
   {
-    -- Requires:
-    -- pacman -S webkit2gtk
+    -- PLEASE NOTE: This plugin requires 'pacman -S webkit2gtk'.
     -- https://github.com/toppair/peek.nvim/issues/61#issuecomment-2182739205.
     "toppair/peek.nvim",
     event = { "VeryLazy" },
@@ -153,5 +153,26 @@ return {
       vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
     end,
   },
+
+  -- -- GitHub Copilot.
+  -- {
+  --   "github/copilot.vim",
+  --   lazy = false,
+  --   config = function()
+  --     vim.g.copilot_no_tab_map = true
+  --     vim.g.copilot_assumed_map = true
+  --   end,
+  -- },
+  --
+  -- -- GitHub Copilot Chat.
+  -- {
+  --   "CopilotC-Nvim/CopilotChat.nvim",
+  --   lazy = false,
+  --   dependencies = { "nvim-lua/plenary.nvim" },
+  --   build = "make tiktoken",
+  --   config = function()
+  --     require("CopilotChat").setup()
+  --   end,
+  -- }
 
 }

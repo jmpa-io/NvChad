@@ -4,5 +4,6 @@ return {
     css = { "prettier" },
     html = { "prettier" },
     go = { "gofmt", "goimports_reviser", "golines" },
+    python = { "ruff_format" },
   },
 }
