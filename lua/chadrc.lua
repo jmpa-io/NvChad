@@ -1,7 +1,7 @@
 -- References:
 -- https://github.com/NvChad/ui/blob/v3.0/lua/nvconfig.lua
 
-local options = {
+return {
 
   -- main theme & interface settings.
   base46 = {
@@ -44,11 +44,8 @@ local options = {
       "           .-<=:`._____________________,'.:>-.      ",
       "           L______                        ___J      ",
       "                  ````````````````````````          ",
-      "                 Powered by this tree.              ",
+      "                 Powered by this tree.              ",
       "                                                     ",
     },
   },
 }
-
-local status, chadrc = pcall(require, "chadrc")
-return vim.tbl_deep_extend("force", options, status and chadrc or {})

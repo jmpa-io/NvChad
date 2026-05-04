@@ -1,11 +1,21 @@
 local lspconfig = require "lspconfig"
-local util = require "lspconfig/util"
+local util = require "lspconfig.util"
 local nvlsp = require "nvchad.configs.lspconfig"
+
+-- Convenience: default setup for simple servers.
+local function default_setup(server)
+  lspconfig[server].setup {
+    on_attach = nvlsp.on_attach,
+    on_init = nvlsp.on_init,
+    capabilities = nvlsp.capabilities,
+  }
+end
 
 -- Go.
 -- https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
 lspconfig.gopls.setup {
   on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
   capabilities = nvlsp.capabilities,
   cmd = { "gopls" },
   filetypes = { "go", "gomod", "gowork", "gotmpl" },
@@ -16,54 +26,86 @@ lspconfig.gopls.setup {
       analyses = {
         shadow = true,
         unusedvariable = true,
-        useany = true
+        useany = true,
       },
     },
   },
 }
 
 -- C++.
---
 lspconfig.clangd.setup {
-  on_attach = function(client)
+  on_attach = function(client, bufnr)
+    -- Disable signature help from clangd (lsp_signature.nvim handles this).
     client.server_capabilities.signatureHelpProvider = false
+    nvlsp.on_attach(client, bufnr)
   end,
+  on_init = nvlsp.on_init,
   capabilities = nvlsp.capabilities,
 }
 
-
 -- Lua.
---
-lspconfig.lua_ls.setup({
+-- Formatting handled by conform (stylua), not lua_ls.
+lspconfig.lua_ls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
   settings = {
     Lua = {
-      format = {
-        enable = true, -- Enable formatting from lua_ls
-      },
       diagnostics = {
-        globals = { "vim" }, -- Recognize 'vim' as a global variable
+        globals = { "vim" },
       },
     },
   },
-  on_attach = function(client, bufnr)
-    if client.supports_method("textDocument/formatting") then
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format({ bufnr = bufnr })
-        end,
-      })
-    end
-  end,
-})
+}
 
+-- Python.
+default_setup "pyright"
 
--- load the default configs.
-local servers = { "html", "cssls" }
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    on_attach = nvlsp.on_attach,
-    on_init = nvlsp.on_init,
-    capabilities = nvlsp.capabilities,
-  }
+-- Bash/Shell.
+default_setup "bashls"
+
+-- Docker.
+default_setup "dockerls"
+
+-- Markdown.
+default_setup "marksman"
+
+-- JSON.
+-- Schema validation via schemastore.nvim.
+lspconfig.jsonls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  settings = {
+    json = {
+      schemas = require("schemastore").json.schemas(),
+      validate = { enable = true },
+    },
+  },
+}
+
+-- YAML.
+-- Schema validation via schemastore.nvim — covers GitHub Actions, AWS CloudFormation, etc.
+lspconfig.yamlls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  settings = {
+    yaml = {
+      schemaStore = {
+        -- Disable built-in schemaStore so schemastore.nvim manages it.
+        enable = false,
+        url = "",
+      },
+      schemas = require("schemastore").yaml.schemas(),
+      validate = true,
+      hover = true,
+      completion = true,
+    },
+  },
+}
+
+-- HTML & CSS.
+for _, server in ipairs { "html", "cssls" } do
+  default_setup(server)
 end

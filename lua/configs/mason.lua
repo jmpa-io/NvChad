@@ -1,39 +1,52 @@
 return {
   ensure_installed = {
-
-    -- Tools.
-    "jq",
-    "gh",
-    "deno",
-
-    -- Bash.
+    -- Bash
     "bash-language-server",
     "shellcheck",
+    "shfmt",
 
-    -- Go.
+    -- Go
+    "gopls",
     "golangci-lint",
     "golangci-lint-langserver",
-    "gopls",
+    "goimports-reviser",
+    "golines",
 
-    -- C++.
+    -- C++
     "clangd",
     "clang-format",
     "codelldb",
+    "cpplint",
+    "cppcheck",
 
-    -- Docker.
-    "hadolint",
-
-    -- Lua.
+    -- Lua
     "lua-language-server",
     "stylua",
 
-    -- HTML & CSS.
+    -- HTML & CSS
     "html-lsp",
     "css-lsp",
     "prettier",
 
-    -- Python.
+    -- Python
     "ruff",
     "mypy",
+    "pyright",
+
+    -- Docker
+    "hadolint",
+    "dockerfile-language-server",
+
+    -- JSON & YAML
+    "json-lsp",
+    "yaml-language-server",
+    "actionlint",
+
+    -- Markdown
+    "marksman",
+    "markdownlint",
+
+    -- Tools
+    "deno",
   },
 }

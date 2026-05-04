@@ -3,23 +3,43 @@ local M = {}
 M.setup = function()
   local lint = require "lint"
 
+  -- Custom golangci-lint definition (nvim-lint doesn't bundle this).
   lint.linters.golangci_lint = {
     cmd = "golangci-lint",
     args = { "run", "--out-format", "line-number" },
     stdin = false,
     stream = "stdout",
     ignore_exitcode = true,
-    parser = require("lint.parser").from_errorformat("%f:%l:%c: %t%*[^:]: %m"),
+    parser = require("lint.parser").from_errorformat "%f:%l:%c: %t%*[^:]: %m",
   }
 
   lint.linters_by_ft = {
-    python = { "ruff", "mypy" },
-    cpp = { "cpplint", "cppcheck" },
+    -- Go
     go = { "golangci_lint" },
+
+    -- Python
+    python = { "ruff", "mypy" },
+
+    -- C++: cppcheck via none-ls, cpplint via nvim-lint.
+    cpp = { "cpplint" },
+
+    -- Shell
+    sh = { "shellcheck" },
+    bash = { "shellcheck" },
+
+    -- Docker
+    dockerfile = { "hadolint" },
+
+    -- GitHub Actions: actionlint fires on workflow YAML files.
+    yaml = { "actionlint" },
+
+    -- Markdown
+    markdown = { "markdownlint" },
   }
 
   local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
 
+  -- Lint on enter, save, and leaving insert mode.
   vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
     group = lint_augroup,
     callback = function()
@@ -27,33 +47,32 @@ M.setup = function()
     end,
   })
 
+  -- Manual lint trigger.
   vim.keymap.set("n", "<leader>l", function()
     lint.try_lint()
   end, { desc = "Trigger linting for current file" })
 
-  -- Настройка диагностики
   vim.diagnostic.config {
-    virtual_text = true, -- Отключаем виртуальный текст
-    signs = true,        -- Оставляем знаки для ошибок
-    underline = true,    -- Включаем подчеркивание
-    update_in_insert = true,
+    virtual_text = true,
+    signs = true,
+    underline = true,
+    update_in_insert = false,
   }
 
-  -- Настройка подчеркивания (только подчеркивание, без изменения цвета текста)
-  vim.api.nvim_command "highlight DiagnosticUnderlineError gui=underline guisp=#FF0000" -- Яркое подчеркивание для ошибок (красный)
-  vim.api.nvim_command "highlight DiagnosticUnderlineWarn gui=underline guisp=#FF9900"  -- Яркое подчеркивание для предупреждений (оранжевый)
-  vim.api.nvim_command "highlight DiagnosticUnderlineInfo gui=underline guisp=#0000FF"  -- Яркое подчеркивание для информационных сообщений (синий)
-  vim.api.nvim_command "highlight DiagnosticUnderlineHint gui=underline guisp=#00FF00"  -- Яркое подчеркивание для подсказок (зеленый)
+  -- Diagnostic underline colours (Dracula-friendly).
+  vim.api.nvim_command "highlight DiagnosticUnderlineError gui=underline guisp=#ff5555"
+  vim.api.nvim_command "highlight DiagnosticUnderlineWarn  gui=underline guisp=#ffb86c"
+  vim.api.nvim_command "highlight DiagnosticUnderlineInfo  gui=underline guisp=#8be9fd"
+  vim.api.nvim_command "highlight DiagnosticUnderlineHint  gui=underline guisp=#50fa7b"
 
-  -- Настройка для отображения диагностики при наведении
+  -- Show diagnostics in a float on cursor hold.
   vim.api.nvim_create_autocmd("CursorHold", {
     group = lint_augroup,
     callback = function()
-      -- Открываем всплывающее окно с диагностикой
       vim.diagnostic.open_float(nil, {
-        focusable = false, -- Окно не будет фокусироваться
-        scope = "line",    -- Окно появляется около курсора
-        border = "single", -- Окно с рамкой
+        focusable = false,
+        scope = "line",
+        border = "single",
       })
     end,
   })
