@@ -1,25 +1,36 @@
-local lspconfig = require "lspconfig"
-local util = require "lspconfig.util"
+-- nvim 0.11+ native LSP configuration via vim.lsp.config.
+-- No longer uses lspconfig framework (deprecated in nvim-lspconfig v3).
+
 local nvlsp = require "nvchad.configs.lspconfig"
 
--- Convenience: default setup for simple servers.
-local function default_setup(server)
-  lspconfig[server].setup {
-    on_attach = nvlsp.on_attach,
-    on_init = nvlsp.on_init,
-    capabilities = nvlsp.capabilities,
-  }
-end
-
--- Go.
--- https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
-lspconfig.gopls.setup {
+-- Default capabilities and handlers shared across all servers.
+local defaults = {
   on_attach = nvlsp.on_attach,
   on_init = nvlsp.on_init,
   capabilities = nvlsp.capabilities,
+}
+
+-- Simple servers that need no extra settings.
+local simple_servers = {
+  "bashls",
+  "cssls",
+  "dockerls",
+  "html",
+  "marksman",
+  "pyright",
+  "yamlls",
+}
+
+for _, server in ipairs(simple_servers) do
+  vim.lsp.config(server, defaults)
+  vim.lsp.enable(server)
+end
+
+-- Go.
+vim.lsp.config("gopls", vim.tbl_extend("force", defaults, {
   cmd = { "gopls" },
   filetypes = { "go", "gomod", "gowork", "gotmpl" },
-  root_dir = util.root_pattern("go.mod", "go.work", ".git"),
+  root_markers = { "go.mod", "go.work", ".git" },
   settings = {
     gopls = {
       completeUnimported = true,
@@ -30,25 +41,21 @@ lspconfig.gopls.setup {
       },
     },
   },
-}
+}))
+vim.lsp.enable "gopls"
 
 -- C++.
-lspconfig.clangd.setup {
+vim.lsp.config("clangd", vim.tbl_extend("force", defaults, {
   on_attach = function(client, bufnr)
     -- Disable signature help from clangd (lsp_signature.nvim handles this).
     client.server_capabilities.signatureHelpProvider = false
     nvlsp.on_attach(client, bufnr)
   end,
-  on_init = nvlsp.on_init,
-  capabilities = nvlsp.capabilities,
-}
+}))
+vim.lsp.enable "clangd"
 
 -- Lua.
--- Formatting handled by conform (stylua), not lua_ls.
-lspconfig.lua_ls.setup {
-  on_attach = nvlsp.on_attach,
-  on_init = nvlsp.on_init,
-  capabilities = nvlsp.capabilities,
+vim.lsp.config("lua_ls", vim.tbl_extend("force", defaults, {
   settings = {
     Lua = {
       diagnostics = {
@@ -56,56 +63,30 @@ lspconfig.lua_ls.setup {
       },
     },
   },
-}
+}))
+vim.lsp.enable "lua_ls"
 
--- Python.
-default_setup "pyright"
-
--- Bash/Shell.
-default_setup "bashls"
-
--- Docker.
-default_setup "dockerls"
-
--- Markdown.
-default_setup "marksman"
-
--- JSON.
--- Schema validation via schemastore.nvim.
-lspconfig.jsonls.setup {
-  on_attach = nvlsp.on_attach,
-  on_init = nvlsp.on_init,
-  capabilities = nvlsp.capabilities,
+-- JSON (with schemastore).
+vim.lsp.config("jsonls", vim.tbl_extend("force", defaults, {
   settings = {
     json = {
       schemas = require("schemastore").json.schemas(),
       validate = { enable = true },
     },
   },
-}
+}))
+vim.lsp.enable "jsonls"
 
--- YAML.
--- Schema validation via schemastore.nvim — covers GitHub Actions, AWS CloudFormation, etc.
-lspconfig.yamlls.setup {
-  on_attach = nvlsp.on_attach,
-  on_init = nvlsp.on_init,
-  capabilities = nvlsp.capabilities,
+-- YAML (with schemastore — covers GitHub Actions, CloudFormation, etc).
+vim.lsp.config("yamlls", vim.tbl_extend("force", defaults, {
   settings = {
     yaml = {
-      schemaStore = {
-        -- Disable built-in schemaStore so schemastore.nvim manages it.
-        enable = false,
-        url = "",
-      },
+      schemaStore = { enable = false, url = "" },
       schemas = require("schemastore").yaml.schemas(),
       validate = true,
       hover = true,
       completion = true,
     },
   },
-}
-
--- HTML & CSS.
-for _, server in ipairs { "html", "cssls" } do
-  default_setup(server)
-end
+}))
+vim.lsp.enable "yamlls"

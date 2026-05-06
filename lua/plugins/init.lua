@@ -25,35 +25,29 @@ return {
     lazy = true,
   },
 
-  -- Mason: extend NvChad's mason with additional ensure_installed tools.
+  -- mason-tool-installer: auto-install all tools listed in configs/mason.lua.
+  -- mason.nvim itself doesn't support ensure_installed; this plugin handles it.
   {
-    "mason-org/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, require("configs.mason").ensure_installed)
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "mason-org/mason.nvim" },
+    event = "VeryLazy",
+    config = function()
+      require("mason-tool-installer").setup {
+        ensure_installed = require("configs.mason").ensure_installed,
+        auto_update = false,
+        run_on_start = true,
+      }
     end,
   },
 
   -- Mason <-> lspconfig bridge: auto-configures installed LSP servers.
+  -- Keep for compatibility with NvChad's lspconfig setup.
   {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
+    dependencies = { "mason-org/mason.nvim" },
     event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("mason-lspconfig").setup {
-        ensure_installed = {
-          "bashls",
-          "clangd",
-          "cssls",
-          "dockerls",
-          "gopls",
-          "html",
-          "jsonls",
-          "lua_ls",
-          "marksman",
-          "pyright",
-          "yamlls",
-        },
         automatic_installation = true,
       }
     end,
@@ -183,31 +177,21 @@ return {
     end,
   },
 
-  -- GitHub Copilot: AI code suggestions as ghost text.
+  -- GitHub Copilot: AI code suggestions via cmp (copilot-cmp handles completions).
   {
     "zbirenbaum/copilot.lua",
     event = "InsertEnter",
     config = function()
       require("copilot").setup {
-        suggestion = {
-          enabled = true,
-          auto_trigger = true,
-          keymap = {
-            accept = "<Tab>",
-            accept_word = "<C-l>",
-            accept_line = "<C-j>",
-            next = "<M-]>",
-            prev = "<M-[>",
-            dismiss = "<C-]>",
-          },
-        },
-        -- disable panel — suggestions inline only.
+        -- Disable inline ghost text and panel — copilot-cmp handles completions instead.
+        -- Running both simultaneously causes duplicate suggestions and Tab key conflicts.
+        suggestion = { enabled = false },
         panel = { enabled = false },
         filetypes = {
-          -- disable in sensitive files.
-          [".env"] = false,
-          ["*.secret"] = false,
+          -- disable in sensitive files (use filetype names, not globs).
+          dotenv = false,
           ["gitcommit"] = false,
+          ["secret"] = false,
         },
       }
     end,

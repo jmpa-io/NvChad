@@ -14,8 +14,8 @@ M.setup = function()
   }
 
   lint.linters_by_ft = {
-    -- Go
-    go = { "golangci_lint" },
+    -- Go — only run golangci-lint if it's installed.
+    go = vim.fn.executable("golangci-lint") == 1 and { "golangci_lint" } or {},
 
     -- Python
     python = { "ruff", "mypy" },
@@ -30,9 +30,6 @@ M.setup = function()
     -- Docker
     dockerfile = { "hadolint" },
 
-    -- GitHub Actions: actionlint fires on workflow YAML files.
-    yaml = { "actionlint" },
-
     -- Markdown
     markdown = { "markdownlint" },
   }
@@ -44,6 +41,15 @@ M.setup = function()
     group = lint_augroup,
     callback = function()
       lint.try_lint()
+    end,
+  })
+
+  -- actionlint: only for GitHub Actions workflow files.
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+    group = lint_augroup,
+    pattern = { "*/.github/workflows/*.yml", "*/.github/workflows/*.yaml" },
+    callback = function()
+      lint.try_lint "actionlint"
     end,
   })
 
