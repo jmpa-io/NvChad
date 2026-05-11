@@ -49,7 +49,6 @@ return {
 
     -- Rust
     "rust-analyzer",
-    "codelldb",
 
     -- Docker
     "hadolint",
@@ -70,6 +69,8 @@ return {
 
     -- SQL
     "sqlls",
+    "sql-formatter",
+    "sqlfluff",
 
     -- TOML
     "taplo",

@@ -42,6 +42,9 @@ M.setup = function()
     -- Terraform.
     terraform = { "tflint" },
     tf = { "tflint" },
+
+    -- SQL.
+    sql = { "sqlfluff" },
   }
 
   local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })

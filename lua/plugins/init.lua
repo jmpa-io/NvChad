@@ -290,4 +290,130 @@ return {
       end, { desc = "Toggle OpenCode terminal", noremap = true, silent = true })
     end,
   },
+
+  -- nvim-dap: debugging support.
+  -- Keybinds: F5 continue, F10 step over, F11 step into, F12 step out,
+  --           <leader>b toggle breakpoint, <leader>du toggle UI.
+  {
+    "mfussenegger/nvim-dap",
+    event = "VeryLazy",
+    dependencies = {
+      -- UI for nvim-dap.
+      {
+        "rcarriga/nvim-dap-ui",
+        dependencies = { "nvim-neotest/nvim-nio" },
+        config = function()
+          local dap, dapui = require "dap", require "dapui"
+          dapui.setup()
+          -- Auto-open/close UI on debug events.
+          dap.listeners.after.event_initialized["dapui_config"] = function()
+            dapui.open()
+          end
+          dap.listeners.before.event_terminated["dapui_config"] = function()
+            dapui.close()
+          end
+          dap.listeners.before.event_exited["dapui_config"] = function()
+            dapui.close()
+          end
+        end,
+      },
+      -- Virtual text showing variable values inline.
+      {
+        "theHamsta/nvim-dap-virtual-text",
+        config = function()
+          require("nvim-dap-virtual-text").setup()
+        end,
+      },
+    },
+    config = function()
+      local dap = require "dap"
+
+      -- Python (debugpy).
+      dap.adapters.python = {
+        type = "executable",
+        command = vim.fn.stdpath "data" .. "/mason/packages/debugpy/venv/bin/python",
+        args = { "-m", "debugpy.adapter" },
+      }
+      dap.configurations.python = {
+        {
+          type = "python",
+          request = "launch",
+          name = "Launch file",
+          program = "${file}",
+          pythonPath = function()
+            return vim.fn.exepath "python3" or "python"
+          end,
+        },
+      }
+
+      -- C / C++ / Rust (codelldb).
+      dap.adapters.codelldb = {
+        type = "server",
+        port = "${port}",
+        executable = {
+          command = vim.fn.stdpath "data" .. "/mason/bin/codelldb",
+          args = { "--port", "${port}" },
+        },
+      }
+      for _, ft in ipairs { "c", "cpp", "rust" } do
+        dap.configurations[ft] = {
+          {
+            type = "codelldb",
+            request = "launch",
+            name = "Launch",
+            program = function()
+              return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+            end,
+            cwd = "${workspaceFolder}",
+            stopOnEntry = false,
+          },
+        }
+      end
+
+      -- C# (netcoredbg).
+      dap.adapters.coreclr = {
+        type = "executable",
+        command = vim.fn.stdpath "data" .. "/mason/bin/netcoredbg",
+        args = { "--interpreter=vscode" },
+      }
+      dap.configurations.cs = {
+        {
+          type = "coreclr",
+          request = "launch",
+          name = "Launch",
+          program = function()
+            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+          end,
+        },
+      }
+
+      -- JavaScript / TypeScript (js-debug-adapter).
+      dap.adapters["pwa-node"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = {
+          command = vim.fn.stdpath "data" .. "/mason/bin/js-debug-adapter",
+          args = { "${port}" },
+        },
+      }
+      for _, ft in ipairs { "javascript", "typescript", "javascriptreact", "typescriptreact" } do
+        dap.configurations[ft] = {
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch file",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+          },
+        }
+      end
+
+      -- Breakpoint signs.
+      vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DapBreakpoint",         linehl = "", numhl = "" })
+      vim.fn.sign_define("DapBreakpointCondition", { text = "◉", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
+      vim.fn.sign_define("DapStopped",             { text = "→", texthl = "DapStopped",             linehl = "DapStopped", numhl = "" })
+    end,
+  },
 }
+

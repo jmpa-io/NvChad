@@ -21,13 +21,19 @@ local simple_servers = {
   "taplo",
   "terraformls",
   "sqlls",
-  "powershell_es",
 }
 
 for _, server in ipairs(simple_servers) do
   vim.lsp.config(server, defaults)
   vim.lsp.enable(server)
 end
+
+-- PowerShell — needs explicit bundle_path pointing to mason install dir.
+vim.lsp.config("powershell_es", vim.tbl_extend("force", defaults, {
+  bundle_path = vim.fn.stdpath "data" .. "/mason/packages/powershell-editor-services",
+  filetypes = { "ps1", "psm1", "psd1" },
+}))
+vim.lsp.enable "powershell_es"
 
 -- Go.
 vim.lsp.config("gopls", vim.tbl_extend("force", defaults, {

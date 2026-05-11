@@ -41,7 +41,7 @@ return {
     zsh = { "shfmt" },
 
     -- SQL
-    sql = { "prettier" },
+    sql = { "sql_formatter" },
 
     -- TOML
     toml = { "taplo" },
