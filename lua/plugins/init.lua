@@ -177,18 +177,18 @@ return {
     end,
   },
 
-  -- GitHub Copilot: AI code suggestions via cmp (copilot-cmp handles completions).
+  -- GitHub Copilot: AI code suggestions via cmp.
+  -- Always loaded — acts as the default AI completion source.
+  -- In work mode, opencode (via <leader>oc) provides the primary AI interface
+  -- using GenAI Studio + all work MCPs. Copilot fills the inline completion gap.
   {
     "zbirenbaum/copilot.lua",
     event = "InsertEnter",
     config = function()
       require("copilot").setup {
-        -- Disable inline ghost text and panel — copilot-cmp handles completions instead.
-        -- Running both simultaneously causes duplicate suggestions and Tab key conflicts.
         suggestion = { enabled = false },
         panel = { enabled = false },
         filetypes = {
-          -- disable in sensitive files (use filetype names, not globs).
           dotenv = false,
           ["gitcommit"] = false,
           ["secret"] = false,
@@ -232,6 +232,9 @@ return {
       }
 
       -- OpenCode terminal instance.
+      -- Inherits OPENCODE_CONFIG from the shell environment automatically:
+      --   work shell (~/work sourced)  → work config loaded
+      --   personal shell               → personal baseline only
       local Terminal = require("toggleterm.terminal").Terminal
       local opencode = Terminal:new {
         cmd = "opencode",
