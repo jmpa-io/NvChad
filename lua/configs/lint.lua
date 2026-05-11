@@ -13,24 +13,34 @@ M.setup = function()
     parser = require("lint.parser").from_errorformat "%f:%l:%c: %t%*[^:]: %m",
   }
 
+  -- Custom cppcheck definition (replaces none-ls).
+  lint.linters.cppcheck_nvim = {
+    cmd = "cppcheck",
+    args = { "--enable=all", "--quiet", "--template={file}:{line}:{column}: {severity}: {message}", "$FILENAME" },
+    stdin = false,
+    stream = "stderr",
+    ignore_exitcode = true,
+    parser = require("lint.parser").from_errorformat "%f:%l:%c: %t%*[^:]: %m",
+  }
+
   lint.linters_by_ft = {
     -- Go — only run golangci-lint if it's installed.
-    go = vim.fn.executable("golangci-lint") == 1 and { "golangci_lint" } or {},
+    go = vim.fn.executable "golangci-lint" == 1 and { "golangci_lint" } or {},
 
-    -- Python
+    -- Python.
     python = { "ruff", "mypy" },
 
-    -- C++: cppcheck via none-ls, cpplint via nvim-lint.
-    cpp = { "cpplint" },
+    -- C++: cppcheck via nvim-lint (none-ls removed).
+    cpp = { "cpplint", "cppcheck_nvim" },
 
-    -- Shell
+    -- Shell.
     sh = { "shellcheck" },
     bash = { "shellcheck" },
 
-    -- Docker
+    -- Docker.
     dockerfile = { "hadolint" },
 
-    -- Markdown
+    -- Markdown.
     markdown = { "markdownlint" },
   }
 

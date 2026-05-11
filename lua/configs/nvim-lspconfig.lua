@@ -1,5 +1,4 @@
 -- nvim 0.11+ native LSP configuration via vim.lsp.config.
--- No longer uses lspconfig framework (deprecated in nvim-lspconfig v3).
 
 local nvlsp = require "nvchad.configs.lspconfig"
 
@@ -18,7 +17,6 @@ local simple_servers = {
   "html",
   "marksman",
   "pyright",
-  "yamlls",
 }
 
 for _, server in ipairs(simple_servers) do
@@ -78,6 +76,7 @@ vim.lsp.config("jsonls", vim.tbl_extend("force", defaults, {
 vim.lsp.enable "jsonls"
 
 -- YAML (with schemastore — covers GitHub Actions, CloudFormation, etc).
+-- Note: not in simple_servers to avoid duplicate registration.
 vim.lsp.config("yamlls", vim.tbl_extend("force", defaults, {
   settings = {
     yaml = {

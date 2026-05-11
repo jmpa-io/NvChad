@@ -1,6 +1,6 @@
 return {
 
-  -- Formatting (conform.nvim)
+  -- Formatting (conform.nvim).
   {
     "stevearc/conform.nvim",
     event = { "BufWritePre" },
@@ -9,7 +9,7 @@ return {
     end,
   },
 
-  -- LSP config
+  -- LSP config.
   {
     "neovim/nvim-lspconfig",
     dependencies = { "b0o/schemastore.nvim" },
@@ -18,15 +18,13 @@ return {
     end,
   },
 
-  -- schemastore.nvim: provides JSON/YAML schemas for LSP validation.
-  -- Covers GitHub Actions, AWS CloudFormation, docker-compose, package.json, etc.
+  -- schemastore.nvim: JSON/YAML schemas for LSP validation.
   {
     "b0o/schemastore.nvim",
     lazy = true,
   },
 
   -- mason-tool-installer: auto-install all tools listed in configs/mason.lua.
-  -- mason.nvim itself doesn't support ensure_installed; this plugin handles it.
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "mason-org/mason.nvim" },
@@ -40,20 +38,20 @@ return {
     end,
   },
 
-  -- Mason <-> lspconfig bridge: auto-configures installed LSP servers.
-  -- Keep for compatibility with NvChad's lspconfig setup.
+  -- mason-lspconfig: bridge for compatibility with NvChad's lspconfig setup.
+  -- automatic_installation disabled — mason-tool-installer handles this explicitly.
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "mason-org/mason.nvim" },
     event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("mason-lspconfig").setup {
-        automatic_installation = true,
+        automatic_installation = false,
       }
     end,
   },
 
-  -- Treesitter: only install grammars for languages actually used.
+  -- Treesitter: grammars for languages actually used.
   {
     "nvim-treesitter/nvim-treesitter",
     opts = {
@@ -111,17 +109,6 @@ return {
     end,
   },
 
-  -- none-ls: cppcheck diagnostics for C++.
-  {
-    "nvimtools/none-ls.nvim",
-    ft = { "cpp" },
-    event = "VeryLazy",
-    config = function()
-      local null_ls = require "null-ls"
-      null_ls.setup(require "configs.null-ls")
-    end,
-  },
-
   -- gopher.nvim: Go-specific helpers (add tags, generate tests, etc).
   {
     "olexsmir/gopher.nvim",
@@ -134,6 +121,7 @@ return {
   },
 
   -- nvim-lint: linting on save/insert leave.
+  -- Handles all linters including cppcheck (none-ls removed — unmaintained).
   {
     "mfussenegger/nvim-lint",
     event = { "BufReadPre", "BufNewFile" },
@@ -149,6 +137,49 @@ return {
     event = "VeryLazy",
     config = function(_, opts)
       require("diffview").setup(opts)
+    end,
+  },
+
+  -- gitsigns: inline git hunks, blame, staging.
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("gitsigns").setup {
+        signs = {
+          add          = { text = "▎" },
+          change       = { text = "▎" },
+          delete       = { text = "" },
+          topdelete    = { text = "" },
+          changedelete = { text = "▎" },
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local function bmap(mode, l, r, desc)
+            vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
+          end
+
+          -- Navigation.
+          bmap("n", "]c", function()
+            if vim.wo.diff then return "]c" end
+            vim.schedule(function() gs.next_hunk() end)
+            return "<Ignore>"
+          end, "Next git hunk")
+          bmap("n", "[c", function()
+            if vim.wo.diff then return "[c" end
+            vim.schedule(function() gs.prev_hunk() end)
+            return "<Ignore>"
+          end, "Prev git hunk")
+
+          -- Actions.
+          bmap("n", "<leader>hs", gs.stage_hunk,   "Stage hunk")
+          bmap("n", "<leader>hr", gs.reset_hunk,   "Reset hunk")
+          bmap("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
+          bmap("n", "<leader>hb", function() gs.blame_line { full = true } end, "Blame line")
+          bmap("n", "<leader>hd", gs.diffthis,     "Diff this")
+          bmap("n", "<leader>tb", gs.toggle_current_line_blame, "Toggle line blame")
+        end,
+      }
     end,
   },
 
@@ -177,15 +208,16 @@ return {
     end,
   },
 
-  -- GitHub Copilot: AI code suggestions via cmp.
-  -- Always loaded — acts as the default AI completion source.
-  -- In work mode, opencode (via <leader>oc) provides the primary AI interface
-  -- using GenAI Studio + all work MCPs. Copilot fills the inline completion gap.
+  -- GitHub Copilot: AI inline completion (fallback for personal mode).
+  -- In work mode, OpenCode (<leader>oc) provides the primary AI interface
+  -- via GenAI Studio + all CBA MCPs. Copilot fills the inline gap.
+  -- Inherits OPENCODE_CONFIG from the shell — no neovim config needed.
   {
     "zbirenbaum/copilot.lua",
     event = "InsertEnter",
     config = function()
       require("copilot").setup {
+        -- Disable inline ghost text and panel — copilot-cmp handles completions.
         suggestion = { enabled = false },
         panel = { enabled = false },
         filetypes = {
@@ -197,7 +229,7 @@ return {
     end,
   },
 
-  -- Copilot as a cmp source (shows suggestions in completion menu too).
+  -- Copilot as a cmp source.
   {
     "zbirenbaum/copilot-cmp",
     dependencies = { "zbirenbaum/copilot.lua" },
@@ -208,7 +240,10 @@ return {
     end,
   },
 
-  -- opencode.nvim: run OpenCode AI assistant inside a Neovim terminal split.
+  -- OpenCode: AI assistant in a vertical terminal split.
+  -- <leader>oc to toggle. Inherits OPENCODE_CONFIG from shell environment:
+  --   work shell (~/work sourced) → GenAI Studio + CBA MCPs
+  --   personal shell              → personal baseline (Copilot fills inline gap)
   {
     "akinsho/toggleterm.nvim",
     version = "*",
@@ -231,10 +266,6 @@ return {
         close_on_exit = false,
       }
 
-      -- OpenCode terminal instance.
-      -- Inherits OPENCODE_CONFIG from the shell environment automatically:
-      --   work shell (~/work sourced)  → work config loaded
-      --   personal shell               → personal baseline only
       local Terminal = require("toggleterm.terminal").Terminal
       local opencode = Terminal:new {
         cmd = "opencode",
