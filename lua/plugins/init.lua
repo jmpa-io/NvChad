@@ -52,8 +52,10 @@ return {
   },
 
   -- Treesitter: grammars for languages actually used.
+  -- Using main branch per NvChad upstream recommendation.
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
     opts = {
       ensure_installed = {
         "bash",
@@ -90,9 +92,39 @@ return {
     },
   },
 
-  -- LSP signature hints while typing.
+  -- which-key: show keybind popup on <leader>.
+  -- NvChad ships which-key — this just registers our custom groups.
   {
-    "ray-x/lsp_signature.nvim",
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      local wk = require "which-key"
+      wk.add {
+        { "<leader>w",  group = "file" },
+        { "<leader>q",  group = "quit" },
+        { "<leader>e",  desc = "File explorer" },
+        { "<leader>d",  desc = "Diagnostic float" },
+        { "<leader>y",  desc = "Yank to clipboard" },
+        { "<leader>Y",  desc = "Yank line to clipboard" },
+        { "<leader>p",  desc = "Paste without yanking" },
+        { "<leader>oc", desc = "Toggle OpenCode" },
+        { "<leader>l",  desc = "Lint file" },
+        { "<leader>h",  group = "git hunks" },
+        { "<leader>hs", desc = "Stage hunk" },
+        { "<leader>hr", desc = "Reset hunk" },
+        { "<leader>hp", desc = "Preview hunk" },
+        { "<leader>hb", desc = "Blame line" },
+        { "<leader>hd", desc = "Diff this" },
+        { "<leader>tb", desc = "Toggle line blame" },
+        { "<leader>b",  desc = "DAP: Toggle breakpoint" },
+        { "<leader>B",  desc = "DAP: Conditional breakpoint" },
+        { "<leader>du", desc = "DAP: Toggle UI" },
+        { "<leader>D",  group = "debug" },
+      }
+    end,
+  },
+
+
     event = "LspAttach",
     opts = {},
     config = function(_, opts)
