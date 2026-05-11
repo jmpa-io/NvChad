@@ -35,7 +35,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
   group = indent_group,
-  pattern = { "lua", "javascript", "typescript", "html", "css", "json", "jsonc", "yaml", "toml" },
+  pattern = { "lua", "javascript", "javascriptreact", "typescript", "typescriptreact", "html", "css", "json", "jsonc", "yaml", "toml", "svelte", "vue" },
   callback = function()
     vim.opt_local.expandtab = true
     vim.opt_local.tabstop = 2
@@ -45,7 +45,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
   group = indent_group,
-  pattern = { "python", "cpp", "c", "bash", "sh" },
+  pattern = { "python", "cpp", "c", "cs", "rust", "bash", "sh", "powershell", "terraform" },
   callback = function()
     vim.opt_local.expandtab = true
     vim.opt_local.tabstop = 4

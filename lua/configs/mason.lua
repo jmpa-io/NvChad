@@ -12,12 +12,17 @@ return {
     "goimports-reviser",
     "golines",
 
-    -- C++
+    -- C / C++
     "clangd",
     "clang-format",
     "codelldb",
     "cpplint",
     "cppcheck",
+
+    -- C#
+    "omnisharp",
+    "csharpier",
+    "netcoredbg",
 
     -- Lua
     "lua-language-server",
@@ -28,10 +33,23 @@ return {
     "css-lsp",
     "prettier",
 
+    -- JavaScript & TypeScript
+    "typescript-language-server",
+    "eslint-lsp",
+    "js-debug-adapter",
+
     -- Python
+    "pyright",
     "ruff",
     "mypy",
-    "pyright",
+    "debugpy",
+
+    -- PowerShell
+    "powershell-editor-services",
+
+    -- Rust
+    "rust-analyzer",
+    "codelldb",
 
     -- Docker
     "hadolint",
@@ -45,6 +63,16 @@ return {
     -- Markdown
     "marksman",
     "markdownlint",
+
+    -- Terraform
+    "terraform-ls",
+    "tflint",
+
+    -- SQL
+    "sqlls",
+
+    -- TOML
+    "taplo",
 
     -- Tools
     "deno",

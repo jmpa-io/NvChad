@@ -17,6 +17,11 @@ local simple_servers = {
   "html",
   "marksman",
   "pyright",
+  "rust_analyzer",
+  "taplo",
+  "terraformls",
+  "sqlls",
+  "powershell_es",
 }
 
 for _, server in ipairs(simple_servers) do
@@ -42,15 +47,29 @@ vim.lsp.config("gopls", vim.tbl_extend("force", defaults, {
 }))
 vim.lsp.enable "gopls"
 
--- C++.
+-- C / C++.
 vim.lsp.config("clangd", vim.tbl_extend("force", defaults, {
   on_attach = function(client, bufnr)
-    -- Disable signature help from clangd (lsp_signature.nvim handles this).
     client.server_capabilities.signatureHelpProvider = false
     nvlsp.on_attach(client, bufnr)
   end,
 }))
 vim.lsp.enable "clangd"
+
+-- C# (OmniSharp).
+vim.lsp.config("omnisharp", vim.tbl_extend("force", defaults, {
+  cmd = { "omnisharp" },
+  filetypes = { "cs", "vb" },
+  root_markers = { "*.sln", "*.csproj", ".git" },
+  settings = {
+    omnisharp = {
+      enableRoslynAnalyzers = true,
+      enableEditorConfigSupport = true,
+      organizeImportsOnFormat = true,
+    },
+  },
+}))
+vim.lsp.enable "omnisharp"
 
 -- Lua.
 vim.lsp.config("lua_ls", vim.tbl_extend("force", defaults, {
@@ -63,6 +82,30 @@ vim.lsp.config("lua_ls", vim.tbl_extend("force", defaults, {
   },
 }))
 vim.lsp.enable "lua_ls"
+
+-- JavaScript / TypeScript.
+vim.lsp.config("ts_ls", vim.tbl_extend("force", defaults, {
+  filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
+  root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+}))
+vim.lsp.enable "ts_ls"
+
+-- ESLint.
+vim.lsp.config("eslint", vim.tbl_extend("force", defaults, {
+  filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
+  root_markers = { ".eslintrc", ".eslintrc.js", ".eslintrc.json", "package.json", ".git" },
+  settings = {
+    workingDirectory = { mode = "auto" },
+  },
+  on_attach = function(client, bufnr)
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      buffer = bufnr,
+      command = "EslintFixAll",
+    })
+    nvlsp.on_attach(client, bufnr)
+  end,
+}))
+vim.lsp.enable "eslint"
 
 -- JSON (with schemastore).
 vim.lsp.config("jsonls", vim.tbl_extend("force", defaults, {

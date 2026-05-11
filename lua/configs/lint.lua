@@ -23,6 +23,12 @@ M.setup = function()
     -- C++: cpplint + built-in cppcheck (replaces none-ls).
     cpp = { "cpplint", "cppcheck" },
 
+    -- JavaScript / TypeScript — eslint via LSP, no extra linter needed.
+    javascript = {},
+    typescript = {},
+    javascriptreact = {},
+    typescriptreact = {},
+
     -- Shell.
     sh = { "shellcheck" },
     bash = { "shellcheck" },
@@ -32,6 +38,10 @@ M.setup = function()
 
     -- Markdown.
     markdown = { "markdownlint" },
+
+    -- Terraform.
+    terraform = { "tflint" },
+    tf = { "tflint" },
   }
 
   local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
