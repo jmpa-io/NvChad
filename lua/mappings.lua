@@ -15,8 +15,8 @@ map("n", "<leader>Q", "<cmd>qa!<CR>", { desc = "Quit all (force)" })
 map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 
 -- Diagnostic navigation.
-map("n", "[d", vim.diagnostic.goto_prev,  { desc = "Previous diagnostic" })
-map("n", "]d", vim.diagnostic.goto_next,  { desc = "Next diagnostic" })
+map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Previous diagnostic" })
+map("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end,  { desc = "Next diagnostic" })
 map("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic float" })
 
 -- Buffer navigation.

@@ -3,19 +3,10 @@ local M = {}
 M.setup = function()
   local lint = require "lint"
 
-  -- Custom golangci-lint definition (nvim-lint doesn't bundle this).
-  lint.linters.golangci_lint = {
-    cmd = "golangci-lint",
-    args = { "run", "--out-format", "line-number" },
-    stdin = false,
-    stream = "stdout",
-    ignore_exitcode = true,
-    parser = require("lint.parser").from_errorformat "%f:%l:%c: %t%*[^:]: %m",
-  }
-
+  -- Use nvim-lint's built-in golangcilint definition (supports v1 and v2).
   lint.linters_by_ft = {
     -- Go — only run golangci-lint if it's installed.
-    go = vim.fn.executable "golangci-lint" == 1 and { "golangci_lint" } or {},
+    go = vim.fn.executable "golangci-lint" == 1 and { "golangcilint" } or {},
 
     -- Python.
     python = { "ruff", "mypy" },
@@ -88,7 +79,7 @@ M.setup = function()
   vim.api.nvim_create_autocmd("CursorHold", {
     group = lint_augroup,
     callback = function()
-      vim.diagnostic.open_float(nil, {
+      vim.diagnostic.open_float({
         focusable = false,
         scope = "line",
         border = "single",

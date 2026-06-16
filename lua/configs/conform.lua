@@ -18,7 +18,7 @@ return {
     typescriptreact = { "prettier" },
 
     -- Go: gofmt -> goimports_reviser -> golines.
-    go = { "gofmt", "goimports_reviser", "golines" },
+    go = { "gofmt", "goimports-reviser", "golines" },
 
     -- Python
     python = { "ruff" },

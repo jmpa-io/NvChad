@@ -125,6 +125,8 @@ return {
   },
 
 
+  {
+    "ray-x/lsp_signature.nvim",
     event = "LspAttach",
     opts = {},
     config = function(_, opts)
@@ -144,6 +146,7 @@ return {
   -- Sort lines/selections.
   {
     "sQVe/sort.nvim",
+    cmd = "Sort",
     config = function()
       require("sort").setup()
     end,
@@ -313,7 +316,7 @@ return {
         hidden = true,
         on_open = function(term)
           vim.cmd "startinsert!"
-          vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<Esc>", "<C-\\><C-n>", { noremap = true, silent = true })
+          vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = term.bufnr, noremap = true, silent = true })
         end,
       }
 
