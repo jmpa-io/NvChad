@@ -5,6 +5,17 @@ return {
     "shellcheck",
     "shfmt",
 
+    -- Ansible
+    "ansible-language-server",
+    "ansible-lint",
+
+    -- Java / Gradle
+    "jdtls",
+    "java-debug-adapter",
+    "java-test",
+    "google-java-format",
+    "checkstyle",
+
     -- Go
     "gopls",
     "golangci-lint",
@@ -74,6 +85,9 @@ return {
 
     -- TOML
     "taplo",
+
+    -- Groovy (Gradle build scripts)
+    "groovy-language-server",
 
     -- Tools
     "deno",

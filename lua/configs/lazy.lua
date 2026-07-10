@@ -40,7 +40,8 @@ return {
         "optwin",
         "compiler",
         "bugreport",
-        "ftplugin",
+        -- ftplugin intentionally NOT disabled — required for per-filetype settings
+        -- (indentation, commentstring, etc). Disabling it breaks FileType autocmds.
       },
     },
   },

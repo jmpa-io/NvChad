@@ -8,6 +8,12 @@ M.setup = function()
     -- Go — only run golangci-lint if it's installed.
     go = vim.fn.executable "golangci-lint" == 1 and { "golangcilint" } or {},
 
+    -- Ansible — ansible-lint handles playbooks, roles, tasks.
+    ["yaml.ansible"] = { "ansible_lint" },
+
+    -- Java — checkstyle for style violations (jdtls handles errors/warnings).
+    java = vim.fn.executable "checkstyle" == 1 and { "checkstyle" } or {},
+
     -- Python.
     python = { "ruff", "mypy" },
 

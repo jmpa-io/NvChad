@@ -1,5 +1,47 @@
 return {
 
+  -- telescope-fzf-native: native fzf sorter for Telescope — significantly faster fuzzy search.
+  -- Requires make (available via homebrew).
+  {
+    "nvim-telescope/telescope-fzf-native.nvim",
+    build = "make",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    event = "VeryLazy",
+    config = function()
+      require("telescope").load_extension "fzf"
+    end,
+  },
+
+  -- nvim-spectre: project-wide find & replace.
+  -- <leader>S  — open spectre (search across project)
+  -- <leader>sw — search for word under cursor across project
+  {
+    "nvim-pack/nvim-spectre",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = "Spectre",
+    keys = {
+      { "<leader>S",  function() require("spectre").open() end,                             desc = "Spectre: open" },
+      { "<leader>sw", function() require("spectre").open_visual { select_word = true } end, desc = "Spectre: search word", mode = { "n", "v" } },
+    },
+    config = function()
+      require("spectre").setup { open_cmd = "noswapfile vnew" }
+    end,
+  },
+
+  -- todo-comments.nvim: highlight + search TODO/FIXME/NOTE/HACK/WARN in code.
+  -- ]t / [t to jump between todos, <leader>ft to search todos via Telescope.
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("todo-comments").setup()
+      vim.keymap.set("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next TODO comment" })
+      vim.keymap.set("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Prev TODO comment" })
+      vim.keymap.set("n", "<leader>ft", "<cmd>TodoTelescope<CR>", { desc = "Search TODOs (Telescope)" })
+    end,
+  },
+
   -- Formatting (conform.nvim).
   {
     "stevearc/conform.nvim",
@@ -55,7 +97,7 @@ return {
   -- Using main branch per NvChad upstream recommendation.
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
+    branch = "master",
     opts = {
       ensure_installed = {
         "bash",
@@ -67,8 +109,11 @@ return {
         "go",
         "gomod",
         "gosum",
+        "groovy",
         "html",
         "javascript",
+        "jinja",
+        "jinja_inline",
         "json",
         "jsonc",
         "lua",
@@ -418,6 +463,30 @@ return {
           name = "Launch",
           program = function()
             return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+          end,
+        },
+      }
+
+      -- Java (java-debug-adapter via jdtls).
+      -- jdtls injects the debug adapter at startup via its bundles — DAP config
+      -- here just wires up the launch configurations shown in the picker.
+      dap.configurations.java = {
+        {
+          type = "java",
+          request = "attach",
+          name = "Debug (attach) — remote",
+          hostName = "127.0.0.1",
+          port = 5005,
+        },
+        {
+          type = "java",
+          request = "launch",
+          name = "Debug (launch) — current file",
+          mainClass = function()
+            return vim.fn.input("Main class (e.g. com.example.Main): ", "")
+          end,
+          projectName = function()
+            return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
           end,
         },
       }

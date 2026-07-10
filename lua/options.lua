@@ -52,3 +52,31 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.shiftwidth = 4
   end,
 })
+
+-- ── Filetype detection ────────────────────────────────────────────────────────
+
+-- .j2 files → jinja filetype (activates jinja + jinja_inline treesitter parsers).
+vim.filetype.add {
+  extension = {
+    j2 = "jinja",
+  },
+}
+
+-- Ansible filetype detection.
+-- ansiblels activates on yaml.ansible filetype. nvim needs help identifying
+-- which YAML files are Ansible — we check for common Ansible directory patterns.
+vim.filetype.add {
+  pattern = {
+    -- Files inside roles/, tasks/, handlers/, playbooks/ → yaml.ansible
+    [".*/roles/.*%.ya?ml"]      = "yaml.ansible",
+    [".*/tasks/.*%.ya?ml"]      = "yaml.ansible",
+    [".*/handlers/.*%.ya?ml"]   = "yaml.ansible",
+    [".*/playbooks/.*%.ya?ml"]  = "yaml.ansible",
+    [".*/defaults/.*%.ya?ml"]   = "yaml.ansible",
+    [".*/vars/.*%.ya?ml"]       = "yaml.ansible",
+    [".*/meta/.*%.ya?ml"]       = "yaml.ansible",
+    -- Top-level playbook.yml / site.yml
+    ["playbook%.ya?ml"]         = "yaml.ansible",
+    ["site%.ya?ml"]             = "yaml.ansible",
+  },
+}

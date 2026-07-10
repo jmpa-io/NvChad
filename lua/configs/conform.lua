@@ -35,6 +35,13 @@ return {
     terraform = { "terraform_fmt" },
     tf = { "terraform_fmt" },
 
+    -- Ansible: prettier for YAML structure, ansible-lint --fix for best practices.
+    -- ansible-lint must be installed: brew install ansible-lint
+    ["yaml.ansible"] = { "prettier", "ansible_lint" },
+
+    -- Java: google-java-format (installed via mason).
+    java = { "google_java_format" },
+
     -- Shell
     sh = { "shfmt" },
     bash = { "shfmt" },

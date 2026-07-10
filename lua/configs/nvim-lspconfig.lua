@@ -138,3 +138,91 @@ vim.lsp.config("yamlls", vim.tbl_extend("force", defaults, {
   },
 }))
 vim.lsp.enable "yamlls"
+
+-- Groovy (Gradle build scripts).
+-- Skipped silently if groovy-language-server is not installed (requires Java).
+local groovyls_bin = vim.fn.stdpath "data" .. "/mason/bin/groovy-language-server"
+if vim.fn.executable(groovyls_bin) == 1 then
+  vim.lsp.config("groovyls", vim.tbl_extend("force", defaults, {
+    filetypes = { "groovy" },
+    root_markers = { "build.gradle", "build.gradle.kts", "settings.gradle", ".git" },
+    cmd = { groovyls_bin },
+  }))
+  vim.lsp.enable "groovyls"
+end
+
+-- Ansible.
+-- ansiblels activates on yaml.ansible filetype — set by detecting ansible keywords
+-- in the file or being inside a known ansible directory structure (roles/, tasks/, etc).
+vim.lsp.config("ansiblels", vim.tbl_extend("force", defaults, {
+  filetypes = { "yaml.ansible" },
+  root_markers = { "ansible.cfg", ".ansible-lint", "playbook.yml", "playbooks/", "roles/" },
+  settings = {
+    ansible = {
+      ansible = {
+        useFullyQualifiedCollectionNames = true,
+      },
+      executionEnvironment = { enabled = false },
+      python = { interpreterPath = vim.fn.exepath "python3" },
+      validation = {
+        enabled = true,
+        lint = {
+          enabled = true,
+          path = vim.fn.exepath "ansible-lint",
+        },
+      },
+    },
+  },
+}))
+vim.lsp.enable "ansiblels"
+
+-- Java (jdtls).
+-- Skipped silently if jdtls is not installed (requires Java/mason install).
+-- jdtls needs a per-project data directory to store its workspace index.
+-- We derive it from the project root so each project gets its own cache.
+local jdtls_bin = vim.fn.stdpath "data" .. "/mason/bin/jdtls"
+if vim.fn.executable(jdtls_bin) == 1 then
+  vim.lsp.config("jdtls", vim.tbl_extend("force", defaults, {
+    cmd = {
+      jdtls_bin,
+      "--jvm-arg=-Xmx2g",
+      "-data", vim.fn.expand "~/.cache/jdtls-workspace/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"),
+    },
+    filetypes = { "java" },
+    root_markers = {
+      "build.gradle",
+      "build.gradle.kts",
+      "settings.gradle",
+      "settings.gradle.kts",
+      "pom.xml",
+      ".git",
+    },
+    settings = {
+      java = {
+        eclipse = { downloadSources = true },
+        configuration = { updateBuildConfiguration = "interactive" },
+        maven = { downloadSources = true },
+        referencesCodeLens = { enabled = true },
+        references = { includeDecompiledSources = true },
+        inlayHints = { parameterNames = { enabled = "all" } },
+        format = { enabled = true },
+      },
+    },
+    init_options = {
+      bundles = (function()
+        -- Include java-debug-adapter and java-test bundles if installed by mason.
+        local mason_data = vim.fn.stdpath "data" .. "/mason/packages"
+        local bundles = {}
+        local debug_jar = vim.fn.glob(mason_data .. "/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar")
+        if debug_jar ~= "" then
+          table.insert(bundles, debug_jar)
+        end
+        for _, jar in ipairs(vim.fn.glob(mason_data .. "/java-test/extension/server/*.jar", true, true)) do
+          table.insert(bundles, jar)
+        end
+        return bundles
+      end)(),
+    },
+  }))
+  vim.lsp.enable "jdtls"
+end
