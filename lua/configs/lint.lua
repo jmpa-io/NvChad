@@ -17,8 +17,8 @@ M.setup = function()
     -- Python.
     python = { "ruff", "mypy" },
 
-    -- C++: cpplint + built-in cppcheck (replaces none-ls).
-    cpp = { "cpplint", "cppcheck" },
+    -- C++: cpplint for style violations.
+    cpp = { "cpplint" },
 
     -- JavaScript / TypeScript — eslint via LSP, no extra linter needed.
     javascript = {},

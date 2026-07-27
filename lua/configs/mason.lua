@@ -28,7 +28,7 @@ return {
     "clang-format",
     "codelldb",
     "cpplint",
-    "cppcheck",
+    "cpptools",
 
     -- C#
     "omnisharp",
