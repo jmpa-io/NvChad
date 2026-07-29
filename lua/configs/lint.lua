@@ -20,11 +20,21 @@ M.setup = function()
     -- C++: cpplint for style violations.
     cpp = { "cpplint" },
 
+    -- PowerShell.
+    ps1 = { "psscriptanalyzer" },
+
     -- JavaScript / TypeScript — eslint via LSP, no extra linter needed.
     javascript = {},
     typescript = {},
     javascriptreact = {},
     typescriptreact = {},
+
+    -- Rust: clippy runs via rust_analyzer LSP (check.command = "clippy").
+    -- No standalone lint entry needed — LSP handles it.
+
+    -- YAML: yamllint for generic YAML (CloudFormation, k8s, Helm).
+    -- ansible-lint handles yaml.ansible specifically above.
+    yaml = { "yamllint" },
 
     -- Shell.
     sh = { "shellcheck" },

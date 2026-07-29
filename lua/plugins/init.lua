@@ -371,6 +371,37 @@ return {
     end,
   },
 
+  -- nvim-dap-go: Go debug adapter wrapping delve (installed via Mason).
+  -- Inherits nvim-dap keybinds: F5 continue, F10 step over, etc.
+  -- Also provides :GoDebugTest to debug the test under cursor.
+  {
+    "leoluz/nvim-dap-go",
+    ft = "go",
+    dependencies = { "mfussenegger/nvim-dap" },
+    config = function()
+      require("dap-go").setup {
+        dap_configurations = {
+          {
+            type = "go",
+            name = "Debug",
+            request = "launch",
+            program = "${file}",
+          },
+          {
+            type = "go",
+            name = "Debug (test)",
+            request = "launch",
+            mode = "test",
+            program = "${file}",
+          },
+        },
+        delve = {
+          path = vim.fn.stdpath "data" .. "/mason/bin/dlv",
+        },
+      }
+    end,
+  },
+
   -- nvim-dap: debugging support.
   -- Keybinds: F5 continue, F10 step over, F11 step into, F12 step out,
   --           <leader>b toggle breakpoint, <leader>du toggle UI.

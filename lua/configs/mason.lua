@@ -22,6 +22,7 @@ return {
     "golangci-lint-langserver",
     "goimports-reviser",
     "golines",
+    "delve",
 
     -- C / C++
     "clangd",
@@ -57,6 +58,7 @@ return {
 
     -- PowerShell
     "powershell-editor-services",
+    "psscriptanalyzer",
 
     -- Rust
     "rust-analyzer",
@@ -69,6 +71,7 @@ return {
     "json-lsp",
     "yaml-language-server",
     "actionlint",
+    "yamllint",
 
     -- Markdown
     "marksman",

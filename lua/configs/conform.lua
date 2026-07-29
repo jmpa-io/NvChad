@@ -42,6 +42,10 @@ return {
     -- Java: google-java-format (installed via mason).
     java = { "google_java_format" },
 
+    -- C / C++
+    c = { "clang_format" },
+    cpp = { "clang_format" },
+
     -- Shell
     sh = { "shfmt" },
     bash = { "shfmt" },
