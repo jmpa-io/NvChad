@@ -45,7 +45,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
   group = indent_group,
-  pattern = { "python", "cpp", "c", "cs", "rust", "bash", "sh", "powershell", "terraform" },
+  pattern = { "python", "cpp", "c", "cs", "bash", "sh", "powershell", "terraform" },
   callback = function()
     vim.opt_local.expandtab = true
     vim.opt_local.tabstop = 4

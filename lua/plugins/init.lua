@@ -122,7 +122,6 @@ return {
         "markdown_inline",
         "powershell",
         "python",
-        "rust",
         "sql",
         "terraform",
         "toml",
@@ -466,7 +465,7 @@ return {
           args = { "--port", "${port}" },
         },
       }
-      for _, ft in ipairs { "c", "cpp", "rust" } do
+      for _, ft in ipairs { "c", "cpp" } do
         dap.configurations[ft] = {
           {
             type = "codelldb",
