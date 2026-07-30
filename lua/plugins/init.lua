@@ -554,10 +554,23 @@ return {
       require("neotest").setup {
         adapters = {
           require "neotest-go",
-          require "neotest-python" { dap = { justMyCode = false } },
+          require "neotest-python" {
+            dap = { justMyCode = false },
+            python = function()
+              -- prefer venv python, fall back to system python3
+              local venv = vim.fn.getcwd() .. "/.venv/bin/python"
+              return vim.fn.filereadable(venv) == 1 and venv or vim.fn.exepath "python3"
+            end,
+          },
           require "neotest-jest" {
-            jestCommand = "npx jest",
-            jestConfigFile = "jest.config.ts",
+            jestCommand = "npx jest --passWithNoTests",
+            jestConfigFile = function()
+              -- find nearest jest config, supporting ts/js/json variants
+              for _, name in ipairs { "jest.config.ts", "jest.config.js", "jest.config.json" } do
+                local f = vim.fn.getcwd() .. "/" .. name
+                if vim.fn.filereadable(f) == 1 then return f end
+              end
+            end,
             env = { CI = "true" },
             cwd = function()
               return vim.fn.getcwd()
