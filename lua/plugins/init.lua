@@ -535,5 +535,47 @@ return {
       vim.fn.sign_define("DapStopped",             { text = "→", texthl = "DapStopped",             linehl = "DapStopped", numhl = "" })
     end,
   },
+
+  -- neotest: in-editor test runner.
+  -- Keybinds: <leader>tt run nearest, <leader>tf run file, <leader>ts toggle summary,
+  --           <leader>to open output, <leader>tS run suite.
+  {
+    "nvim-neotest/neotest",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-neotest/neotest-go",
+      "nvim-neotest/neotest-python",
+      "haydenmeade/neotest-jest",
+    },
+    config = function()
+      require("neotest").setup {
+        adapters = {
+          require "neotest-go",
+          require "neotest-python" { dap = { justMyCode = false } },
+          require "neotest-jest" {
+            jestCommand = "npx jest",
+            jestConfigFile = "jest.config.ts",
+            env = { CI = "true" },
+            cwd = function()
+              return vim.fn.getcwd()
+            end,
+          },
+        },
+      }
+
+      local nt = require "neotest"
+      local map = function(k, f, d)
+        vim.keymap.set("n", k, f, { desc = d, noremap = true, silent = true })
+      end
+      map("<leader>tt", function() nt.run.run() end,                        "Run nearest test")
+      map("<leader>tf", function() nt.run.run(vim.fn.expand "%") end,       "Run test file")
+      map("<leader>ts", function() nt.summary.toggle() end,                 "Toggle test summary")
+      map("<leader>to", function() nt.output.open { enter = true } end,     "Open test output")
+      map("<leader>tS", function() nt.run.run(vim.fn.getcwd()) end,         "Run test suite")
+    end,
+  },
 }
 
