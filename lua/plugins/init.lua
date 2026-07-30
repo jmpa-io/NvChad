@@ -353,20 +353,6 @@ return {
         close_on_exit = false,
       }
 
-      local Terminal = require("toggleterm.terminal").Terminal
-      local opencode = Terminal:new {
-        cmd = "opencode",
-        direction = "vertical",
-        hidden = true,
-        on_open = function(term)
-          vim.cmd "startinsert!"
-          vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = term.bufnr, noremap = true, silent = true })
-        end,
-      }
-
-      vim.keymap.set("n", "<leader>oc", function()
-        opencode:toggle()
-      end, { desc = "Toggle OpenCode terminal", noremap = true, silent = true })
     end,
   },
 
