@@ -295,10 +295,7 @@ return {
     end,
   },
 
-  -- GitHub Copilot: AI inline completion (fallback for personal mode).
-  -- In work mode, OpenCode (<leader>oc) provides the primary AI interface
-  -- via GenAI Studio + all CBA MCPs. Copilot fills the inline gap.
-  -- Inherits OPENCODE_CONFIG from the shell — no neovim config needed.
+  -- GitHub Copilot: AI inline completion.
   {
     "zbirenbaum/copilot.lua",
     event = "InsertEnter",
@@ -324,6 +321,42 @@ return {
     config = function()
       require("copilot_cmp").setup()
       require("configs.cmp").setup()
+    end,
+  },
+
+  -- CopilotChat: chat panel powered by Copilot models (Claude Sonnet, GPT-4o, etc).
+  -- Keybinds: <leader>cc open chat, <leader>cq quick question, <leader>ce explain,
+  --           <leader>cf fix, <leader>cr review, <leader>cm pick model.
+  {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "zbirenbaum/copilot.lua",
+      "nvim-lua/plenary.nvim",
+    },
+    config = function()
+      require("CopilotChat").setup {
+        model = "claude-sonnet-4-5",
+        window = { layout = "vertical", width = 0.4 },
+        mappings = {
+          reset = { normal = "<C-l>", insert = "<C-l>" },
+        },
+      }
+
+      local chat = require "CopilotChat"
+      local map = function(k, f, d)
+        vim.keymap.set({ "n", "v" }, k, f, { desc = d, noremap = true, silent = true })
+      end
+      map("<leader>cc", function() chat.toggle() end,                                    "Toggle Copilot chat")
+      map("<leader>cq", function()
+        vim.ui.input({ prompt = "Copilot: " }, function(input)
+          if input and input ~= "" then chat.ask(input) end
+        end)
+      end, "Quick question")
+      map("<leader>ce", function() chat.ask("Explain this code") end,                    "Explain")
+      map("<leader>cf", function() chat.ask("Fix this code") end,                        "Fix")
+      map("<leader>cr", function() chat.ask("Review this code") end,                     "Review")
+      map("<leader>cm", function() chat.select_model() end,                              "Pick model")
     end,
   },
 
