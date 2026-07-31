@@ -52,16 +52,6 @@ vim.lsp.config("gopls", vim.tbl_extend("force", defaults, {
 }))
 vim.lsp.enable "gopls"
 
--- Rust — use clippy instead of cargo check for richer diagnostics.
-vim.lsp.config("rust_analyzer", vim.tbl_extend("force", defaults, {
-  settings = {
-    ["rust-analyzer"] = {
-      check = { command = "clippy" },
-    },
-  },
-}))
-vim.lsp.enable "rust_analyzer"
-
 -- C / C++.
 vim.lsp.config("clangd", vim.tbl_extend("force", defaults, {
   on_attach = function(client, bufnr)

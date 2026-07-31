@@ -26,10 +26,6 @@ return {
     -- C#
     cs = { "csharpier" },
 
-    -- Rust: rustfmt is NOT a mason package.
-    -- Install separately: rustup component add rustfmt
-    rust = { "rustfmt" },
-
     -- Terraform: terraform_fmt calls the terraform CLI directly.
     -- Install separately: https://developer.hashicorp.com/terraform/install
     terraform = { "terraform_fmt" },

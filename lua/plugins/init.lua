@@ -122,7 +122,6 @@ return {
         "markdown_inline",
         "powershell",
         "python",
-        "rust",
         "sql",
         "terraform",
         "toml",
@@ -354,20 +353,6 @@ return {
         close_on_exit = false,
       }
 
-      local Terminal = require("toggleterm.terminal").Terminal
-      local opencode = Terminal:new {
-        cmd = "opencode",
-        direction = "vertical",
-        hidden = true,
-        on_open = function(term)
-          vim.cmd "startinsert!"
-          vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = term.bufnr, noremap = true, silent = true })
-        end,
-      }
-
-      vim.keymap.set("n", "<leader>oc", function()
-        opencode:toggle()
-      end, { desc = "Toggle OpenCode terminal", noremap = true, silent = true })
     end,
   },
 
@@ -466,7 +451,7 @@ return {
           args = { "--port", "${port}" },
         },
       }
-      for _, ft in ipairs { "c", "cpp", "rust" } do
+      for _, ft in ipairs { "c", "cpp" } do
         dap.configurations[ft] = {
           {
             type = "codelldb",
@@ -548,6 +533,61 @@ return {
       vim.fn.sign_define("DapBreakpoint",          { text = "●", texthl = "DapBreakpoint",         linehl = "", numhl = "" })
       vim.fn.sign_define("DapBreakpointCondition", { text = "◉", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
       vim.fn.sign_define("DapStopped",             { text = "→", texthl = "DapStopped",             linehl = "DapStopped", numhl = "" })
+    end,
+  },
+
+  -- neotest: in-editor test runner.
+  -- Keybinds: <leader>tt run nearest, <leader>tf run file, <leader>ts toggle summary,
+  --           <leader>to open output, <leader>tS run suite.
+  {
+    "nvim-neotest/neotest",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-neotest/neotest-go",
+      "nvim-neotest/neotest-python",
+      "haydenmeade/neotest-jest",
+    },
+    config = function()
+      require("neotest").setup {
+        adapters = {
+          require "neotest-go",
+          require "neotest-python" {
+            dap = { justMyCode = false },
+            python = function()
+              -- prefer venv python, fall back to system python3
+              local venv = vim.fn.getcwd() .. "/.venv/bin/python"
+              return vim.fn.filereadable(venv) == 1 and venv or vim.fn.exepath "python3"
+            end,
+          },
+          require "neotest-jest" {
+            jestCommand = "npx jest --passWithNoTests",
+            jestConfigFile = function()
+              -- find nearest jest config, supporting ts/js/json variants
+              for _, name in ipairs { "jest.config.ts", "jest.config.js", "jest.config.json" } do
+                local f = vim.fn.getcwd() .. "/" .. name
+                if vim.fn.filereadable(f) == 1 then return f end
+              end
+            end,
+            env = { CI = "true" },
+            cwd = function()
+              return vim.fn.getcwd()
+            end,
+          },
+        },
+      }
+
+      local nt = require "neotest"
+      local map = function(k, f, d)
+        vim.keymap.set("n", k, f, { desc = d, noremap = true, silent = true })
+      end
+      map("<leader>tt", function() nt.run.run() end,                        "Run nearest test")
+      map("<leader>tf", function() nt.run.run(vim.fn.expand "%") end,       "Run test file")
+      map("<leader>ts", function() nt.summary.toggle() end,                 "Toggle test summary")
+      map("<leader>to", function() nt.output.open { enter = true } end,     "Open test output")
+      map("<leader>tS", function() nt.run.run(vim.fn.getcwd()) end,         "Run test suite")
     end,
   },
 }

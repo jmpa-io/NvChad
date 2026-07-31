@@ -60,9 +60,6 @@ return {
     "powershell-editor-services",
     "psscriptanalyzer",
 
-    -- Rust
-    "rust-analyzer",
-
     -- Docker
     "hadolint",
     "dockerfile-language-server",
